@@ -1,8 +1,8 @@
-# Import necessary libraries
 import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
 import os
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -13,6 +13,10 @@ api_key = os.getenv("groq_api_key")
 api_key = st.secrets["groq"]["groq_api_key"]
 
 client = Groq(api_key=api_key)
+
+# Initialize the session state to handle conversation context
+if 'context' not in st.session_state:
+    st.session_state.context = []
 
 def generate_prompt(full_name, years_of_experience, desired_positions, tech_stack):
     """
@@ -50,7 +54,7 @@ def get_interview_questions(prompt):
     list: A list of interview questions.
     """
     stream = client.chat.completions.create(
-        messages=[{"role": "system", "content": "You are a Interview Question Generator AI."},
+        messages=[{"role": "system", "content": "You are an Interview Question Generator AI."},
                   {"role": "user", "content": prompt}],
         model="llama-3.3-70b-versatile",
         temperature=0.2,
@@ -67,6 +71,24 @@ def get_interview_questions(prompt):
             questions.append(content)
     
     return "".join(questions)
+
+def update_context(question_text):
+    """
+    Updates the conversation context by appending new information.
+    
+    Args:
+    question_text (str): The new question text to be added to the context.
+    """
+    st.session_state.context.append(question_text)
+
+def display_context():
+    """
+    Displays the current conversation context to maintain a coherent flow.
+    """
+    if st.session_state.context:
+        st.write("### Conversation Context:")
+        for idx, context_item in enumerate(st.session_state.context):
+            st.write(f"{idx + 1}. {context_item}")
 
 def main():
     """
@@ -90,6 +112,9 @@ def main():
     current_location = st.text_input("Current Location")
     tech_stack = st.text_area("Tech Stack")
 
+    # Display the current conversation context
+    display_context()
+
     # Submit button to trigger question generation
     if st.button("Generate Interview Questions"):
         if full_name and years_of_experience is not None and desired_positions and tech_stack:
@@ -102,20 +127,10 @@ def main():
             
             # Display the generated questions
             st.subheader("Generated AI/ML Interview Questions:")
-
-            # Custom CSS for width
-            st.markdown(
-                """
-                <style>
-                .stTextArea {
-                    width: 800px;  /* Adjust the width as needed */
-                }
-                </style>
-                """, unsafe_allow_html=True
-            )
-
-            # Text area with specific height
             st.text_area("Interview Questions", interview_questions, height=300)
+            
+            # Update the conversation context with the new interview questions
+            update_context(interview_questions)
         else:
             st.error("Please fill all fields before generating the questions.")
 
