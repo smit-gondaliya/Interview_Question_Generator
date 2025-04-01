@@ -141,8 +141,6 @@ def main():
 
             # Text area with specific height
             st.text_area("Interview Questions", interview_questions, height=300)
-        else:
-            st.error("Please fill all fields before generating the questions.")
             
             # Update the conversation context with the new interview questions
             update_context(interview_questions)
