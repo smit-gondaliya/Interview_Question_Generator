@@ -31,7 +31,7 @@ def generate_prompt(full_name, years_of_experience, desired_positions, tech_stac
     Returns:
     str: A formatted prompt for generating interview questions.
     """
-    return (f"Generate an AI/ML interview prompt based on the following details:\n"
+    return (f"Generate an interview questions prompt based on the following details:\n"
             f"Experience: {years_of_experience} year(s)\n"
             f"Desired Positions: {desired_positions}\n"
             f"Tech Stack: {tech_stack}\n\n"
@@ -54,7 +54,7 @@ def get_interview_questions(prompt):
     list: A list of interview questions.
     """
     stream = client.chat.completions.create(
-        messages=[{"role": "system", "content": "You are an Interview Question Generator AI."},
+        messages=[{"role": "system", "content": "You are an Interview Question Generator."},
                   {"role": "user", "content": prompt}],
         model="llama-3.3-70b-versatile",
         temperature=0.2,
@@ -127,7 +127,22 @@ def main():
             
             # Display the generated questions
             st.subheader("Generated AI/ML Interview Questions:")
+
+            # Custom CSS for width
+            st.markdown(
+                """
+                <style>
+                .stTextArea {
+                    width: 800px;  /* Adjust the width as needed */
+                }
+                </style>
+                """, unsafe_allow_html=True
+            )
+
+            # Text area with specific height
             st.text_area("Interview Questions", interview_questions, height=300)
+        else:
+            st.error("Please fill all fields before generating the questions.")
             
             # Update the conversation context with the new interview questions
             update_context(interview_questions)
