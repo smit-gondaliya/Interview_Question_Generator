@@ -88,6 +88,7 @@ def main():
 
     years_of_experience = st.number_input("Years of Experience", min_value=0)
     desired_positions = st.text_input("Desired Positions")
+    current_location = st.text_input("Current Location")
     tech_stack = st.text_area("Tech Stack")
 
     # Submit button to trigger question generation
